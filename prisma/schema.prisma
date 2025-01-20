@@ -1,0 +1,63 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id              Int          @id @default(autoincrement())
+  username        String?      @unique
+  password        String
+  role            UserRole     @default(USER)
+  tickets         Ticket[]     @relation("CreatedBy")
+  assignedTickets Ticket[]     @relation("AssignedTo")
+  info            Information?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Ticket {
+  id          String       @id @default(nanoid())
+  title       String
+  description String
+  status      TicketStatus @default(PENDING)
+  createdBy   User?        @relation("CreatedBy", fields: [userId], references: [id])
+  userId      Int?
+  assignedTo  User?        @relation("AssignedTo", fields: [operatorId], references: [id])
+  operatorId  Int?
+  infoId      Int
+  info        Information  @relation(fields: [infoId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  closedAt    DateTime?
+}
+
+model Information {
+  id           Int      @id @default(autoincrement())
+  name         String
+  surname      String
+  phone_number String?
+  email        String?
+  userId       Int?     @unique
+  users        User?    @relation(fields: [userId], references: [id])
+  tickets      Ticket[]
+
+  @@unique(name: "data", [name, surname, phone_number, email])
+}
+
+enum UserRole {
+  USER
+  OPERATOR
+  ADMIN
+}
+
+enum TicketStatus {
+  PENDING
+  ASSIGNED
+  COMPLETED
+}

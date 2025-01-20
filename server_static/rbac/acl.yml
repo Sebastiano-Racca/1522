@@ -1,0 +1,24 @@
+home:
+  read:
+    - '*'
+
+ticket:
+  create:
+    - '*'
+  read:
+    - '*'
+  update:
+    - OPERATOR
+    - ADMIN
+  delete:
+    - ADMIN
+
+operator: # Who can manage operators
+  create:
+    - ADMIN
+  read:
+    - ADMIN
+  update:
+    - ADMIN
+  delete:
+    - ADMIN
